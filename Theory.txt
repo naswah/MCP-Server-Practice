@@ -1,0 +1,63 @@
+MCP Servers
+
+MCP stands for Model Context Protocol. It is an open standard that lets AI apps such as Claude, ChatGPT, Cursor and VS Code find and use outside tools, data, and prompt templates through one common interface, instead of building a custom link for every app and service pair. MCP is a protocol. It is not a product and not a library. A protocol is a set of rules, like the rules of a language. Libraries (SDKs) help you follow those rules.
+
+The Three Main Things a Server Offers (Primitives)
+1. Tools: actions the model can take
+
+These are functions. The model decides when to use them. Each tool has a name, a description, and an input schema (what inputs it needs, written in JSON Schema).
+Examples: send_email, create_invoice, search_issues, get_weather.
+
+2. Resources: data the app can read
+These are like files or records that give context. Think “read-only information”. Each has a URI (an address), such as file:///notes/todo.txt or db://customers/42. Resources are context the application loads, not actions the model takes. 
+scalar
+
+3. Prompts: ready-made templates
+Reusable instructions that the user picks, often shown as slash commands. Example: a /code-review prompt that fills in a good review template.
+
+Features the Client Offers to the Server
+
+Servers can also ask clients for help. Know these terms:
+Roots: the client tells the server which folders it may work in.
+Sampling: the server asks the client’s AI model to generate text. This lets a server use AI without its own API key.
+Elicitation: the server asks the user a question mid-task, such as “Which account do you want to use?”
+Logging: the server sends log messages to the client.
+Newest change: The 2026-07-28 revision deprecates three older client features: roots, sampling, and logging. “Deprecated” means “still exists, but do not build new things on it.” You will still see them in older tutorials. 
+
+The message format: JSON-RPC 2.0
+
+MCP messages are JSON. Here is what a client asks to list tools:
+{ "jsonrpc": "2.0", "id": 1, "method": "tools/list" }
+
+A calling tool:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "get_weather",
+    "arguments": { "city": "Kathmandu" }
+  }
+}
+
+server replies:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [{ "type": "text", "text": "18°C, clear sky" }]
+  }
+}
+
+Types of MCP Serverthere are no "specific types" of MCP Servers but 
+This is the grouping you’ll hear most.
+
+Kind	What it does	Examples
+Data / knowledge: Lets AI read information	
+Action / tool: Lets AI do things like end email, create tickets, add tasks
+API wrapper: Turns an existing service into MCP	Eg: GitHub, Slack, Google Drive, weather, Stripe
+Database: Lets AI query data	Eg: PostgreSQL, SQLite, MongoDB servers
+File system	Reads and writes files	
+Developer tools:	Help with coding like Git, code search, test runners
+Browser / automation: Controls a web page or an app Eg: Web scrapers, browser controllers
+Memory: Remembers facts between chats	(stateful/ stateless)
